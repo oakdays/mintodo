@@ -1,5 +1,9 @@
 <template>
-  <div class="mb-1">
+  <div
+    v-if="item"
+    :id="`to-do-${index}`"
+    class="mb-1"
+  >
     <form
       v-if="isEditing"
       @submit.prevent="editItem"
@@ -8,7 +12,8 @@
         type="text"
         class="appearance-none w-full border rounded py-1 px-2 leading-tight focus:outline-none focus:border-green-500"
         v-model="draftItemText"
-        :ref="`toDo${index}`"
+        :id="`to-do-${index}-input`"
+        :ref="`toDo${index}Input`"
       >
     </form>
 
@@ -20,6 +25,7 @@
       >
 
       <span
+        :id="`to-do-${index}-text`"
         class="cursor-pointer"
         :class="{'line-through text-gray-500':  item.isDone}"
         @click="startEditingItem"
@@ -27,7 +33,9 @@
         {{ item.text }}
       </span>
 
+      <!-- Ideally, this is an image -->
       <span
+        :id="`to-do-${index}-x`"
         class="float-right font-bold cursor-pointer"
         @click="emitDelete"
       >
@@ -43,7 +51,7 @@ export default {
     // Needed for having a dynamic ref to the editing input
     index: { type: Number, default: 0 },
     // Item structure: { text: string, isDone: boolean }
-    item: { type: Object, default: () => {} }
+    item: { type: Object, default: null }
   },
   data () {
     return {
@@ -56,7 +64,7 @@ export default {
       this.draftItemText = this.item.text
       this.isEditing = true
       this.$nextTick(() => {
-        this.$refs[`toDo${this.index}`].focus()
+        this.$refs[`toDo${this.index}Input`].focus()
       })
     },
     editItem () {
