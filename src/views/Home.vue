@@ -6,7 +6,7 @@
 
     <form
       class="mb-5"
-      @submit.prevent="addToDo"
+      @submit.prevent="addNewToDo"
     >
       <input
         type="text"
@@ -16,89 +16,69 @@
       >
     </form>
 
+    <filters
+      v-if="toDos.length"
+      v-model="activeFilter"
+      :options="filters"
+    />
+
     <to-do-list
       v-if="filteredToDos.length"
       :items="filteredToDos"
-      @itemDelete="item => deleteToDo(item)"
+      @itemDelete="item => deleteToDo(toDos.indexOf(item))"
       class="mb-5"
     />
 
-    <ul class="flex mb-5">
-      <li class="mr-3">
-        <a
-          class="inline-block rounded py-1 px-3 cursor-pointer border font-semibold"
-          :class="{
-            'border-green-500 bg-green-500 text-white': activeFilter === 'all',
-            'hover:border-green-500 text-green-500': activeFilter !== 'all'
-          }"
-          @click="setFilter('all')"
-        >
-          All
-        </a>
-      </li>
-      <li class="mr-3">
-        <a
-          class="inline-block rounded py-1 px-3 cursor-pointer border font-semibold"
-          :class="{
-            'border-green-500 bg-green-500 text-white': activeFilter === 'active',
-            'hover:border-green-500 text-green-500': activeFilter !== 'active'
-          }"
-          @click="setFilter('active')"
-        >
-          Active
-        </a>
-      </li>
-      <li class="mr-3">
-        <a
-          class="inline-block rounded py-1 px-3 cursor-pointer border font-semibold"
-          :class="{
-            'border-green-500 bg-green-500 text-white': activeFilter === 'done',
-            'hover:border-green-500 text-green-500': activeFilter !== 'done'
-          }"
-          @click="setFilter('done')"
-        >
-          Done
-        </a>
-      </li>
-    </ul>
+    <template v-if="filteredToDos.length">
+      <button
+        class="bg-white hover:border-green-300 py-2 px-4 mr-2 border rounded shadow focus:outline-none focus:border-green-500"
+        @click="setToDosAsDone"
+      >
+        Check all
+      </button>
+      <button
+        class="bg-white hover:border-green-300 py-2 px-4 border rounded shadow focus:outline-none focus:border-green-500"
+        @click="setToDosAsActive"
+      >
+        Uncheck all
+      </button>
 
-    <button
-      class="bg-white hover:border-green-300 py-2 px-4 border rounded shadow focus:outline-none focus:border-green-500"
-      @click="completeAllToDos"
-    >
-      Check all
-    </button>
-
-    <button
-      class="bg-white float-right hover:border-green-300 py-2 px-4 border rounded shadow focus:outline-none focus:border-green-500"
-      @click="deleteDoneToDos"
-    >
-      Clear completed
-    </button>
+      <button
+        class="bg-white float-right hover:border-green-300 py-2 px-4 border rounded shadow focus:outline-none focus:border-green-500"
+        @click="setToDos(activeToDos)"
+      >
+        Clear completed
+      </button>
+    </template>
   </div>
 </template>
 
 <script>
+import { mapState, mapGetters, mapMutations } from 'vuex'
+
+import Filters from '@/components/Filters'
 import ToDoList from '@/components/ToDoList'
 
 export default {
   components: {
+    Filters,
     ToDoList
   },
   data () {
     return {
-      newToDo: '',
-      toDos: [],
-      activeFilter: 'all'
+      activeFilter: 'all',
+      filters: ['All', 'Active', 'Done'],
+      newToDo: ''
     }
   },
   computed: {
-    activeToDos () {
-      return this.toDos.filter(toDo => !toDo.isDone)
-    },
-    doneToDos () {
-      return this.toDos.filter(toDo => toDo.isDone)
-    },
+    ...mapState({
+      toDos: state => state.toDos
+    }),
+    ...mapGetters([
+      'activeToDos',
+      'doneToDos'
+    ]),
     filteredToDos () {
       switch (this.activeFilter) {
         case 'all':
@@ -113,25 +93,21 @@ export default {
     }
   },
   methods: {
-    addToDo () {
+    ...mapMutations([
+      'addToDo',
+      'deleteToDo',
+      'setToDos',
+      'setToDosAsActive',
+      'setToDosAsDone',
+    ]),
+    addNewToDo () {
       if (this.newToDo) {
-        this.toDos.push({
+        this.addToDo({
           text: this.newToDo,
           isDone: false
         })
         this.newToDo = ''
       }
-    },
-    completeAllToDos () {
-      this.toDos.forEach(toDo => {
-        toDo.isDone = true
-      })
-    },
-    deleteDoneToDos () {
-      this.toDos = this.activeToDos
-    },
-    deleteToDo (item) {
-      this.toDos.splice(this.toDos.indexOf(item), 1)
     },
     setFilter (filter) {
       this.activeFilter = filter

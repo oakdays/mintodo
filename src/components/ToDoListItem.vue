@@ -1,22 +1,7 @@
 <template>
   <div class="mb-1">
-    <input
-      v-if="!isEditing"
-      class="mr-2 leading-tight"
-      type="checkbox"
-      v-model="item.isDone"
-    >
-
-    <span
-      v-if="!isEditing"
-      class="cursor-pointer"
-      :class="{'line-through text-gray-500':  item.isDone}"
-      @click="startEditingItem"
-    >
-      {{ item.text }}
-    </span>
     <form
-      v-else
+      v-if="isEditing"
       @submit.prevent="editItem"
     >
       <input
@@ -27,21 +12,37 @@
       >
     </form>
 
-    <span
-      v-if="!isEditing"
-      class="float-right font-bold cursor-pointer"
-      @click="emitDelete"
-    >
-      x
-    </span>
+    <template v-else>
+      <input
+        class="mr-2 leading-tight"
+        type="checkbox"
+        v-model="item.isDone"
+      >
+
+      <span
+        class="cursor-pointer"
+        :class="{'line-through text-gray-500':  item.isDone}"
+        @click="startEditingItem"
+      >
+        {{ item.text }}
+      </span>
+
+      <span
+        class="float-right font-bold cursor-pointer"
+        @click="emitDelete"
+      >
+        x
+      </span>
+    </template>
   </div>
 </template>
 
 <script>
 export default {
   props: {
-    // Item structure: { text: string, isDone: boolean }
+    // Needed for having a dynamic ref to the editing input
     index: { type: Number, default: 0 },
+    // Item structure: { text: string, isDone: boolean }
     item: { type: Object, default: () => {} }
   },
   data () {
