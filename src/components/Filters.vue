@@ -19,29 +19,35 @@
   </ul>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+interface FiltersData {
+  activeFilter: string
+}
+
+export default Vue.extend({
   props: {
     value: { type: String, default: '' },
     options: { type: Array, default: () => [] }
   },
-  data () {
+  data (): FiltersData {
     return {
       activeFilter: ''
     }
   },
   watch: {
-    activeFilter (val) {
+    activeFilter (val: string) {
       this.$emit('input', val)
     },
-    value (val) {
+    value (val: string) {
       this.activeFilter = val
     }
   },
   methods: {
-    setFilter (option) {
+    setFilter (option: string) {
       this.activeFilter = option
     }
   }
-}
+})
 </script>

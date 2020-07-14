@@ -45,15 +45,24 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue, { PropType } from 'vue'
+
+import { ToDo } from '../../types'
+
+interface ToDoListItemData {
+  isEditing: boolean,
+  draftItemText: string
+}
+
+export default Vue.extend({
   props: {
     // Needed for having a dynamic ref to the editing input
     index: { type: Number, default: 0 },
     // Item structure: { text: string, isDone: boolean }
-    item: { type: Object, default: null }
+    item: { type: Object as PropType<ToDo>, default: null }
   },
-  data () {
+  data (): ToDoListItemData {
     return {
       isEditing: false,
       draftItemText: ''
@@ -64,7 +73,7 @@ export default {
       this.draftItemText = this.item.text
       this.isEditing = true
       this.$nextTick(() => {
-        this.$refs[`toDo${this.index}Input`].focus()
+        (this.$refs[`toDo${this.index}Input`] as HTMLElement).focus()
       })
     },
     editItem () {
@@ -75,5 +84,5 @@ export default {
       this.$emit('delete')
     }
   }
-}
+})
 </script>

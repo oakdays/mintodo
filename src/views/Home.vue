@@ -53,18 +53,27 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 
-import Filters from '@/components/Filters'
-import ToDoList from '@/components/ToDoList'
+import Filters from '@/components/Filters.vue'
+import ToDoList from '@/components/ToDoList.vue'
 
-export default {
+import { ToDo, State } from '../../types'
+
+interface HomeData {
+  activeFilter: string,
+  filters: string[],
+  newToDo: string
+}
+
+export default Vue.extend({
   components: {
     Filters,
     ToDoList
   },
-  data () {
+  data (): HomeData {
     return {
       activeFilter: 'all',
       filters: ['All', 'Active', 'Done'],
@@ -72,14 +81,14 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      toDos: state => state.toDos
-    }),
+    ...mapState([
+      'toDos'
+    ]),
     ...mapGetters([
       'activeToDos',
       'doneToDos'
     ]),
-    filteredToDos () {
+    filteredToDos (): ToDo[] {
       switch (this.activeFilter) {
         case 'all':
           return this.toDos
@@ -109,9 +118,9 @@ export default {
         this.newToDo = ''
       }
     },
-    setFilter (filter) {
+    setFilter (filter: string) {
       this.activeFilter = filter
     }
   }
-}
+})
 </script>
